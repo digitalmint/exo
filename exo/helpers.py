@@ -44,7 +44,24 @@ def get_system_info():
   return "Non-Mac, non-Linux system"
 
 
-def find_available_port(host: str = "", min_port: int = 49152, max_port: int = 65535) -> int:
+def find_available_port(host: str, min_port: int = 49152, max_port: int = 65535) -> int:
+  """
+  Finds an available port on the specified host and within the given port range.
+
+  Args:
+      host (str): The IP address of the interface to bind to. Must be explicitly specified.
+      min_port (int): The minimum port number in the range to check (default: 49152).
+      max_port (int): The maximum port number in the range to check (default: 65535).
+
+  Returns:
+      int: An available port number.
+
+  Raises:
+      ValueError: If the host is not specified.
+      RuntimeError: If no available ports are found in the specified range.
+  """
+  if not host:
+      raise ValueError("The 'host' parameter must be explicitly specified to avoid binding to all interfaces.")
   used_ports_file = os.path.join(tempfile.gettempdir(), "exo_used_ports")
 
   def read_used_ports():
