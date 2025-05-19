@@ -16,7 +16,7 @@ class InferenceEngine(ABC):
     pass
 
   @abstractmethod
-  async def sample(self, x: np.ndarray) -> np.ndarray:
+  async def sample(self, x: np.ndarray, mask: Optional[np.ndarray] = None) -> np.ndarray:
     pass
 
   @abstractmethod
@@ -42,11 +42,11 @@ class InferenceEngine(ABC):
 
   async def infer_prompt(self, request_id: str, shard: Shard, prompt: str, inference_state: Optional[dict] = None) -> tuple[np.ndarray, Optional[dict]]:
     tokens = await self.encode(shard, prompt)
-    if shard.model_id != 'stable-diffusion-2-1-base':
-      x = tokens.reshape(1, -1)
-    else:
-      x = tokens
-    output_data, inference_state = await self.infer_tensor(request_id, shard, x, inference_state)
+    # if shard.model_id != 'stable-diffusion-2-1-base':
+    #   x = tokens.reshape(1, -1)
+    # else:
+    #   x = tokens
+    output_data, inference_state = await self.infer_tensor(request_id, shard, tokens, inference_state)
 
     return output_data, inference_state
 
