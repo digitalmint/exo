@@ -561,7 +561,11 @@ class ChatGPTAPI:
           except Exception as e:
             if DEBUG >= 2: print(f"Error processing image: {e}")
             if DEBUG >= 2: traceback.print_exc()
-            await response.write(json.dumps({'error': str(e)}).encode('utf-8') + b'\n')
+            # Log the detailed exception information
+            error_details = traceback.format_exc()
+            if DEBUG >= 2: print(error_details)
+            # Send a generic error message to the user
+            await response.write(json.dumps({'error': "An internal error has occurred."}).encode('utf-8') + b'\n')
 
       stream_task = None
 
