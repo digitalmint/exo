@@ -16,7 +16,6 @@ from exo.models import model_cards, get_repo
 import aiohttp
 from aiofiles import os as aios
 
-
 class HFShardDownloader(ShardDownloader):
   def __init__(self, quick_check: bool = False, max_parallel_downloads: int = 4):
     self.quick_check = quick_check
