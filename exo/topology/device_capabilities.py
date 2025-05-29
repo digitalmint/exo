@@ -56,6 +56,7 @@ CHIP_FLOPS = {
   "Apple M3": DeviceFlops(fp32=3.55*TFLOPS, fp16=7.10*TFLOPS, int8=14.20*TFLOPS),
   "Apple M3 Pro": DeviceFlops(fp32=4.97*TFLOPS, fp16=9.94*TFLOPS, int8=19.88*TFLOPS),
   "Apple M3 Max": DeviceFlops(fp32=14.20*TFLOPS, fp16=28.40*TFLOPS, int8=56.80*TFLOPS),
+  "Apple M3 Ultra": DeviceFlops(fp32=54.26*TFLOPS, fp16=108.52*TFLOPS, int8=217.04*TFLOPS),
   "Apple M4": DeviceFlops(fp32=4.26*TFLOPS, fp16=8.52*TFLOPS, int8=17.04*TFLOPS),
   "Apple M4 Pro": DeviceFlops(fp32=5.72*TFLOPS, fp16=11.44*TFLOPS, int8=22.88*TFLOPS),
   "Apple M4 Max": DeviceFlops(fp32=18.03*TFLOPS, fp16=36.07*TFLOPS, int8=72.14*TFLOPS),
@@ -198,22 +199,19 @@ async def linux_device_capabilities() -> DeviceCapabilities:
       flops=CHIP_FLOPS.get(gpu_name, DeviceFlops(fp32=0, fp16=0, int8=0)),
     )
   elif Device.DEFAULT == "AMD":
-    # For AMD GPUs, pyrsmi is the way (Official python package for rocm-smi)
-    from pyrsmi import rocml
+    import pyamdgpuinfo
 
-    rocml.smi_initialize()
-    gpu_name = rocml.smi_get_device_name(0).upper()
-    gpu_memory_info = rocml.smi_get_device_memory_total(0)
+    gpu_raw_info = pyamdgpuinfo.get_gpu(0)
+    gpu_name = gpu_raw_info.name
+    gpu_memory_info = gpu_raw_info.memory_info["vram_size"]
 
     if DEBUG >= 2: print(f"AMD device {gpu_name=} {gpu_memory_info=}")
 
-    rocml.smi_shutdown()
-
     return DeviceCapabilities(
-      model="Linux Box ({gpu_name})",
+      model="Linux Box (" + gpu_name + ")",
       chip=gpu_name,
       memory=gpu_memory_info // 2**20,
-      flops=DeviceFlops(fp32=0, fp16=0, int8=0),
+      flops=CHIP_FLOPS.get(gpu_name, DeviceFlops(fp32=0, fp16=0, int8=0)),
     )
 
   else:
